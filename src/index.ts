@@ -1,18 +1,19 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { Hono } from 'hono';
+const app = new Hono();
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
-	},
-} satisfies ExportedHandler<Env>;
+function lastfm_url(method: String, name: String, api_key: String) {
+	return `http://ws.audioscrobbler.com/2.0/?method=${method}&user=${name}&api_key=${api_key}&format=json`;
+}
+
+app.get('/', (c) => c.text("prydt's lastfm cloudflare worker"));
+
+app.get('/user/:name', async (c) => {
+	const name = c.req.param('name');
+	const key = c.env.LASTFM_API_KEY;
+
+	let response = await fetch(lastfm_url('user.getRecentTracks', name, key));
+
+	return response;
+});
+
+export default app;
