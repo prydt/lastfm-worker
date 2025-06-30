@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { Bindings } from 'hono/types';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -7,7 +6,11 @@ function lastfm_url(method: String, name: String, api_key: String) {
 	return `http://ws.audioscrobbler.com/2.0/?method=${method}&user=${name}&api_key=${api_key}&format=json`;
 }
 
-app.get('/', (c) => c.text("prydt's lastfm cloudflare worker"));
+app.get('/', (c) =>
+	c.html(`<!doctype html>
+			<h1>prydt's lastfm api wrapper</h1>
+			<p>get the source here: <a href="https://github.com/prydt/lastfm-worker">https://github.com/prydt/lastfm-worker</a></p>`),
+);
 
 app.get('/user/:name', async (c) => {
 	const name = c.req.param('name');
